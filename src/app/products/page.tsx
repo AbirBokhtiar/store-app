@@ -40,15 +40,20 @@ const Products = () => {
         {products.map((product) => (
           <Link key={product._id} href={`/product/${product._id}`}>
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 cursor-pointer">
-              <img
-                src={product.images[0]?.secure_url}
+              <div className="relative h-48 w-full">
+              <Image
+                src={product.images[0]?.secure_url || "/placeholder.png"}
                 alt={product.name}
-                className="h-48 w-full object-cover"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 25vw"
+                priority={false}
               />
+              </div>
               <div className="p-4">
-                <h2 className="text-lg font-semibold text-gray-900">{product.name}</h2>
-                <p className="text-gray-600 text-sm truncate">{product.description}</p>
-                <p className="mt-2 font-bold text-blue-600">৳ {product.price}</p>
+              <h2 className="text-lg font-semibold text-gray-900">{product.name}</h2>
+              <p className="text-gray-600 text-sm truncate">{product.description}</p>
+              <p className="mt-2 font-bold text-blue-600">৳ {product.price}</p>
               </div>
             </div>
           </Link>
