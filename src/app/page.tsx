@@ -1,103 +1,182 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+
+const Home = () => {
+  const [storeName, setStoreName] = useState("");
+  const [domain, setDomain] = useState("");
+  const [email, setEmail] = useState("");
+  const [country, setCountry] = useState("Bangladesh");
+  const [category, setCategory] = useState("Fashion");
+  const [currency, setCurrency] = useState("BDT");
+  const [domainTaken, setDomainTaken] = useState(false);
+  const [domainChecking, setDomainChecking] = useState(false);
+  const [formError, setFormError] = useState("");
+  const router = useRouter();
+
+  // Check domain availability on blur or change
+  const checkDomainAvailability = async () => {
+    if (!domain) return;
+
+    setDomainChecking(true);
+    try {
+      const res = await axios.get(
+        `https://interview-task-green.vercel.app/task/domains/check/${domain}.expressitbd.com`
+      );
+      setDomainTaken(res.data.taken);
+    } catch (err) {
+      console.error("Domain check error", err);
+    } finally {
+      setDomainChecking(false);
+    }
+  };
+
+  const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!storeName || !domain || !email) {
+      setFormError("All fields are required.");
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      setFormError("Please enter a valid email address.");
+      return;
+    }
+
+    if (domainTaken) {
+      setFormError("Domain is already taken.");
+      return;
+    }
+
+    try {
+      await axios.post("https://interview-task-green.vercel.app/task/stores/create", {
+        name: storeName,
+        currency,
+        country,
+        domain,
+        category,
+        email,
+      });
+
+      router.push("/products");
+    } catch (err) {
+      console.error("Store creation error", err);
+      setFormError("Something went wrong. Please try again.");
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+      <div className="bg-white rounded-xl shadow-xl p-8 max-w-3xl w-full">
+        <h1 className="text-2xl font-bold mb-2">Create a store</h1>
+        <p className="text-gray-500 mb-6">Add your basic store information and complete the setup</p>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <div>
+            <label className="block mb-1 font-medium">Give your online store a name</label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 p-2 rounded-md"
+              placeholder="Store name"
+              minLength={3}
+              required
+              value={storeName}
+              onChange={e => setStoreName(e.target.value)}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          </div>
+
+          <div>
+            <label className="block mb-1 font-medium">Your online store subdomain</label>
+            <div className="flex items-center">
+              <input
+                type="text"
+                className={`flex-1 border p-2 rounded-md ${domainTaken ? "border-red-400 text-red-700" : "border-gray-300"}`}
+                placeholder="uniquedomain"
+                required
+                value={domain}
+                onChange={e => {
+                  setDomain(e.target.value.toLowerCase());
+                  setDomainTaken(false);
+                }}
+                onBlur={checkDomainAvailability}
+              />
+              <span className="ml-2">.expressitbd.com</span>
+            </div>
+            {domain && !domainChecking && !domainTaken && (
+              <p className="text-green-600 text-sm mt-1">Domain is available!</p>
+            )}
+            {domain && !domainChecking && domainTaken && (
+              <p className="text-red-600 text-sm mt-1">Not Available Domain, Re-enter!</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block mb-1 font-medium">Where&apos;s your store located?</label>
+            <select
+              className="w-full border border-gray-300 p-2 rounded-md"
+              value={country}
+              onChange={e => setCountry(e.target.value)}
+            >
+              <option value="Bangladesh">Bangladesh</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block mb-1 font-medium">What&apos;s your Category?</label>
+            <select
+              className="w-full border border-gray-300 p-2 rounded-md"
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+            >
+              <option>Fashion</option>
+              <option>Electronics</option>
+              <option>Grocery</option>
+              <option>Books</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block mb-1 font-medium">Choose store currency</label>
+            <select
+              className="w-full border border-gray-300 p-2 rounded-md"
+              value={currency}
+              onChange={e => setCurrency(e.target.value)}
+            >
+              <option value="BDT">BDT (Taka)</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block mb-1 font-medium">Store contact email</label>
+            <input
+              type="email"
+              className="w-full border border-gray-300 p-2 rounded-md"
+              placeholder="you@example.com"
+              pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+              required
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+            />
+          </div>
+
+          {formError && <p className="text-red-600 text-sm">{formError}</p>}
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-md font-semibold transition"
+            disabled={domainChecking || domainTaken}
           >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            {domainChecking ? "Checking domain..." : "Create store"}
+          </button>
+        </form>
+      </div>
     </div>
   );
-}
+};
+
+export default Home;
