@@ -116,7 +116,7 @@ const Home = () => {
           </div>
 
           <div>
-            <label className="block mb-1 font-medium">Where's your store located?</label>
+            <label className="block mb-1 font-medium">Where&apos;s your store located?</label>
             <select
               className="w-full border border-gray-300 p-2 rounded-md"
               value={country}
@@ -127,7 +127,7 @@ const Home = () => {
           </div>
 
           <div>
-            <label className="block mb-1 font-medium">What's your Category?</label>
+            <label className="block mb-1 font-medium">What&apos;s your Category?</label>
             <select
               className="w-full border border-gray-300 p-2 rounded-md"
               value={category}

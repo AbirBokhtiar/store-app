@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Product {
   _id: string;
@@ -39,7 +40,7 @@ const Products = () => {
         {products.map((product) => (
           <Link key={product._id} href={`/product/${product._id}`}>
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 cursor-pointer">
-              <img
+              <Image
                 src={product.images[0]?.secure_url}
                 alt={product.name}
                 className="h-48 w-full object-cover"
