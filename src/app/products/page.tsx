@@ -40,7 +40,7 @@ const Products = () => {
         {products.map((product) => (
           <Link key={product._id} href={`/product/${product._id}`}>
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 cursor-pointer">
-              <Image
+              <img
                 src={product.images[0]?.secure_url}
                 alt={product.name}
                 className="h-48 w-full object-cover"
