@@ -13,7 +13,6 @@ const Home = () => {
   const [currency, setCurrency] = useState("BDT");
   const [domainTaken, setDomainTaken] = useState(false);
   const [domainChecking, setDomainChecking] = useState(false);
-  const [domainChecked, setDomainChecked] = useState(false);
   const [formError, setFormError] = useState("");
   const router = useRouter();
 
@@ -27,10 +26,8 @@ const Home = () => {
         `https://interview-task-green.vercel.app/task/domains/check/${domain}.expressitbd.com`
       );
       setDomainTaken(res.data.taken);
-      setDomainChecked(true);
     } catch (err) {
       console.error("Domain check error", err);
-      setDomainChecked(false);
     } finally {
       setDomainChecking(false);
     }

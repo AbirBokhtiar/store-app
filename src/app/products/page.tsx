@@ -20,7 +20,7 @@ const Products = () => {
     axios
       .get("https://glore-bd-backend-node-mongo.vercel.app/api/product")
       .then((res) => {
-        setProducts(res.data.data); // <-- use .data.data
+        setProducts(res.data.data);
       })
       .catch((err) => {
         console.error("Failed to fetch products", err);
