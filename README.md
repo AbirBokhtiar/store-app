@@ -1,4 +1,4 @@
-# Store App
+# A Store App
 
 A modern Next.js store creation and product listing app.
 
